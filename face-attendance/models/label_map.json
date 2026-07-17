@@ -1,0 +1,162 @@
+{
+  "STU001": {
+    "name": "Krishna Sharma",
+    "roll_no": "CSE-2027000"
+  },
+  "STU002": {
+    "name": "Riya Nair",
+    "roll_no": "CSE-2027001"
+  },
+  "STU003": {
+    "name": "Kavya Iyer",
+    "roll_no": "CSE-2027002"
+  },
+  "STU004": {
+    "name": "Reyansh Pandey",
+    "roll_no": "CSE-2027003"
+  },
+  "STU005": {
+    "name": "Aisha Verma",
+    "roll_no": "CSE-2027004"
+  },
+  "STU006": {
+    "name": "Nisha Gupta",
+    "roll_no": "CSE-2027005"
+  },
+  "STU007": {
+    "name": "Aditya Sharma",
+    "roll_no": "CSE-2027006"
+  },
+  "STU008": {
+    "name": "Sai Nair",
+    "roll_no": "CSE-2027007"
+  },
+  "STU009": {
+    "name": "Kavya Pillai",
+    "roll_no": "CSE-2027008"
+  },
+  "STU010": {
+    "name": "Swati Sharma",
+    "roll_no": "CSE-2027009"
+  },
+  "STU011": {
+    "name": "Lakshmi Nair",
+    "roll_no": "CSE-2027010"
+  },
+  "STU012": {
+    "name": "Aisha Gupta",
+    "roll_no": "CSE-2027011"
+  },
+  "STU013": {
+    "name": "Kavya Rao",
+    "roll_no": "CSE-2027012"
+  },
+  "STU014": {
+    "name": "Nisha Reddy",
+    "roll_no": "CSE-2027013"
+  },
+  "STU015": {
+    "name": "Aarav Joshi",
+    "roll_no": "CSE-2027014"
+  },
+  "STU016": {
+    "name": "Ananya Das",
+    "roll_no": "CSE-2027015"
+  },
+  "STU017": {
+    "name": "Varun Menon",
+    "roll_no": "CSE-2027016"
+  },
+  "STU018": {
+    "name": "Riya Iyer",
+    "roll_no": "CSE-2027017"
+  },
+  "STU019": {
+    "name": "Isha Joshi",
+    "roll_no": "CSE-2027018"
+  },
+  "STU020": {
+    "name": "Dev Verma",
+    "roll_no": "CSE-2027019"
+  },
+  "STU021": {
+    "name": "Sai Gupta",
+    "roll_no": "CSE-2027020"
+  },
+  "STU022": {
+    "name": "Reyansh Menon",
+    "roll_no": "CSE-2027021"
+  },
+  "STU023": {
+    "name": "Kabir Krishnan",
+    "roll_no": "CSE-2027022"
+  },
+  "STU024": {
+    "name": "Sneha Joshi",
+    "roll_no": "CSE-2027023"
+  },
+  "STU025": {
+    "name": "Aditya Das",
+    "roll_no": "CSE-2027024"
+  },
+  "STU026": {
+    "name": "Aryan Pillai",
+    "roll_no": "CSE-2027025"
+  },
+  "STU027": {
+    "name": "Krishna Kulkarni",
+    "roll_no": "CSE-2027026"
+  },
+  "STU028": {
+    "name": "Nikhil Verma",
+    "roll_no": "CSE-2027027"
+  },
+  "STU029": {
+    "name": "Lakshmi Reddy",
+    "roll_no": "CSE-2027028"
+  },
+  "STU030": {
+    "name": "Anjali Kulkarni",
+    "roll_no": "CSE-2027029"
+  },
+  "STU031": {
+    "name": "Yash Krishnan",
+    "roll_no": "CSE-2027030"
+  },
+  "STU032": {
+    "name": "Priya Das",
+    "roll_no": "CSE-2027031"
+  },
+  "STU033": {
+    "name": "Arjun Sharma",
+    "roll_no": "CSE-2027032"
+  },
+  "STU034": {
+    "name": "Kavya Joshi",
+    "roll_no": "CSE-2027033"
+  },
+  "STU035": {
+    "name": "Anika Verma",
+    "roll_no": "CSE-2027034"
+  },
+  "STU036": {
+    "name": "Kavya Mehta",
+    "roll_no": "CSE-2027035"
+  },
+  "STU037": {
+    "name": "Reyansh Gupta",
+    "roll_no": "CSE-2027036"
+  },
+  "STU038": {
+    "name": "Riya Rao",
+    "roll_no": "CSE-2027037"
+  },
+  "STU039": {
+    "name": "Yash Iyer",
+    "roll_no": "CSE-2027038"
+  },
+  "STU040": {
+    "name": "Yash Menon",
+    "roll_no": "CSE-2027039"
+  }
+}

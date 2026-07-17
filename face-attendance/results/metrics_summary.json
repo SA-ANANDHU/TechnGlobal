@@ -1,0 +1,50 @@
+{
+  "best_pipeline": "Eigenfaces (PCA) + SVM",
+  "n_students": 40,
+  "train_size": 280,
+  "train_size_after_augmentation": 1120,
+  "test_size": 120,
+  "metrics": {
+    "Eigenfaces (PCA) + SVM": {
+      "accuracy": 0.9916666666666667,
+      "precision": 0.99375,
+      "recall": 0.9916666666666666,
+      "f1_score": 0.9914285714285714,
+      "best_params": {
+        "C": 5,
+        "kernel": "rbf"
+      }
+    },
+    "Eigenfaces (PCA) + KNN": {
+      "accuracy": 0.95,
+      "precision": 0.9675,
+      "recall": 0.95,
+      "f1_score": 0.950357142857143,
+      "best_params": {
+        "n_neighbors": 1,
+        "weights": "uniform"
+      }
+    },
+    "LBPH + SVM": {
+      "accuracy": 0.975,
+      "precision": 0.98125,
+      "recall": 0.975,
+      "f1_score": 0.9742857142857144,
+      "best_params": {
+        "C": 5,
+        "kernel": "linear"
+      }
+    },
+    "LBPH + KNN": {
+      "accuracy": 0.95,
+      "precision": 0.95875,
+      "recall": 0.95,
+      "f1_score": 0.9480357142857144,
+      "best_params": {
+        "n_neighbors": 1,
+        "weights": "uniform"
+      }
+    }
+  },
+  "training_time_seconds": 196.72
+}

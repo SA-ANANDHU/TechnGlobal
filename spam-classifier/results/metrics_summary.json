@@ -1,0 +1,41 @@
+{
+  "best_model": "SVM",
+  "dataset_size": 5169,
+  "train_size": 4135,
+  "test_size": 1034,
+  "metrics": {
+    "Naive Bayes": {
+      "accuracy": 0.9758220502901354,
+      "precision": 0.9344262295081968,
+      "recall": 0.8702290076335878,
+      "f1_score": 0.9011857707509882,
+      "roc_auc": 0.9854894203376361,
+      "best_params": {
+        "alpha": 0.1
+      }
+    },
+    "Logistic Regression": {
+      "accuracy": 0.9700193423597679,
+      "precision": 0.8623188405797102,
+      "recall": 0.9083969465648855,
+      "f1_score": 0.8847583643122676,
+      "roc_auc": 0.9918380631144699,
+      "best_params": {
+        "C": 10,
+        "class_weight": "balanced"
+      }
+    },
+    "SVM": {
+      "accuracy": 0.9777562862669246,
+      "precision": 0.9354838709677419,
+      "recall": 0.8854961832061069,
+      "f1_score": 0.9098039215686274,
+      "roc_auc": 0.9910180653124022,
+      "best_params": {
+        "C": 5,
+        "kernel": "linear"
+      }
+    }
+  },
+  "training_time_seconds": 92.63
+}

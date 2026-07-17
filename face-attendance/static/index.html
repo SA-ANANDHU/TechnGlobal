@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RollCall — Face Recognition Attendance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0D1117; --surface:#161B26; --surface-2:#1D2434; --border:#2A3145;
+    --text:#ECEFF4; --muted:#8891A5;
+    --gold:#F2B84B; --green:#34D399; --red:#F87171;
+    --gold-dim:rgba(242,184,75,0.12); --green-dim:rgba(52,211,153,0.12); --red-dim:rgba(248,113,113,0.12);
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1080px;margin:0 auto;padding:28px 20px 80px;}
+
+  header{display:flex;align-items:center;justify-content:space-between;padding-bottom:24px;border-bottom:1px solid var(--border);margin-bottom:28px;flex-wrap:wrap;gap:12px;}
+  .brand{display:flex;align-items:center;gap:10px;}
+  .brand-mark{width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,var(--gold),#B8842E);display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-weight:800;color:#0D1117;font-size:16px;}
+  .brand-name{font-family:'Sora',sans-serif;font-weight:700;font-size:19px;letter-spacing:-0.01em;}
+  .brand-sub{color:var(--muted);font-size:12.5px;margin-top:1px;}
+  #api-status{font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;display:flex;align-items:center;gap:6px;}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);}
+
+  h1{font-family:'Sora',sans-serif;font-weight:700;font-size:clamp(26px,4vw,36px);line-height:1.15;letter-spacing:-0.02em;margin:0 0 8px;}
+  .lede{color:var(--muted);font-size:14.5px;max-width:68ch;margin:0 0 28px;line-height:1.6;}
+
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:20px;}
+  @media (max-width:760px){.grid{grid-template-columns:1fr;}}
+
+  .panel{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;}
+  .panel-title{font-family:'Sora',sans-serif;font-size:12.5px;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin:0 0 14px;}
+
+  /* Capture panel with scan-frame overlay */
+  .capture-stage{position:relative;background:#000;border-radius:10px;overflow:hidden;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;}
+  .capture-stage video, .capture-stage img{width:100%;height:100%;object-fit:cover;display:block;}
+  .capture-placeholder{color:var(--muted);font-size:13px;text-align:center;padding:20px;font-family:'JetBrains Mono',monospace;}
+  .scan-frame{position:absolute;inset:14%;pointer-events:none;}
+  .scan-frame span{position:absolute;width:26px;height:26px;border-color:var(--gold);}
+  .scan-frame .tl{top:0;left:0;border-top:3px solid;border-left:3px solid;border-radius:6px 0 0 0;}
+  .scan-frame .tr{top:0;right:0;border-top:3px solid;border-right:3px solid;border-radius:0 6px 0 0;}
+  .scan-frame .bl{bottom:0;left:0;border-bottom:3px solid;border-left:3px solid;border-radius:0 0 0 6px;}
+  .scan-frame .br{bottom:0;right:0;border-bottom:3px solid;border-right:3px solid;border-radius:0 0 6px 0;}
+  .scanning .scan-frame::after{
+    content:"";position:absolute;left:0;right:0;top:0;height:2px;
+    background:linear-gradient(90deg,transparent,var(--gold),transparent);
+    animation:scan 1s linear infinite;
+  }
+  @keyframes scan{0%{transform:translateY(0);}100%{transform:translateY(280%);}}
+
+  .row{display:flex;gap:10px;align-items:center;margin-top:14px;flex-wrap:wrap;}
+  button{font-family:'Sora',sans-serif;font-weight:600;font-size:13.5px;border:none;border-radius:9px;padding:11px 20px;cursor:pointer;background:var(--gold);color:#241a04;transition:transform .1s ease, opacity .15s ease;}
+  button:hover{opacity:0.9;}
+  button:active{transform:scale(0.98);}
+  button:disabled{opacity:0.4;cursor:not-allowed;}
+  button.ghost{background:transparent;border:1px solid var(--border);color:var(--text);}
+  input[type=file]{display:none;}
+
+  .result{margin-top:16px;display:none;}
+  .result.show{display:block;animation:fadein .25s ease;}
+  @keyframes fadein{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+
+  .id-card{display:flex;align-items:center;gap:14px;padding:16px;border-radius:11px;}
+  .id-card.present{background:var(--green-dim);border:1px solid rgba(52,211,153,0.35);}
+  .id-card.rejected{background:var(--red-dim);border:1px solid rgba(248,113,113,0.35);}
+  .avatar{width:52px;height:52px;border-radius:50%;background:var(--surface-2);display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-weight:700;font-size:18px;flex-shrink:0;}
+  .id-card.present .avatar{color:var(--green);}
+  .id-card.rejected .avatar{color:var(--red);}
+  .id-info .id-name{font-family:'Sora',sans-serif;font-weight:700;font-size:16px;}
+  .id-info .id-meta{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);margin-top:2px;}
+  .id-status{margin-left:auto;font-family:'Sora',sans-serif;font-weight:700;font-size:12px;padding:5px 12px;border-radius:20px;white-space:nowrap;}
+  .id-card.present .id-status{background:var(--green);color:#052A1C;}
+  .id-card.rejected .id-status{background:var(--red);color:#3A0810;}
+
+  .stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+  .stat{background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:14px 12px;text-align:center;}
+  .stat-value{font-family:'Sora',sans-serif;font-weight:700;font-size:24px;}
+  .stat-value.green{color:var(--green);} .stat-value.red{color:var(--red);}
+  .stat-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-top:4px;}
+
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th{text-align:left;color:var(--muted);font-weight:500;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;padding:8px 10px;border-bottom:1px solid var(--border);}
+  td{padding:10px;border-bottom:1px solid var(--border);}
+  td.mono, th.mono{font-family:'JetBrains Mono',monospace;}
+  .table-wrap{overflow-x:auto;margin-top:10px;}
+  .empty-row{color:var(--muted);text-align:center;padding:20px;font-size:13px;}
+
+  footer{margin-top:36px;color:var(--muted);font-size:12.5px;text-align:center;line-height:1.7;}
+  code.inline{font-family:'JetBrains Mono',monospace;background:var(--surface-2);padding:2px 6px;border-radius:4px;font-size:11.5px;}
+
+  @media (max-width:600px){
+    .stats-grid{grid-template-columns:repeat(3,1fr);}
+    .row{flex-direction:column;align-items:stretch;}
+    .row button{width:100%;}
+    header{flex-direction:column;align-items:flex-start;}
+    .id-card{flex-wrap:wrap;}
+    .id-status{margin-left:0;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brand">
+      <div class="brand-mark">R</div>
+      <div>
+        <div class="brand-name">RollCall</div>
+        <div class="brand-sub">Face recognition attendance</div>
+      </div>
+    </div>
+    <div id="api-status"><span class="dot"></span><span id="api-status-text">checking API…</span></div>
+  </header>
+
+  <h1>Attendance, verified<br>by face, not by hand.</h1>
+  <p class="lede">Capture or upload a photo to check a student in. The model is trained on 40 enrolled students (AT&T/Olivetti Faces dataset standing in for a real classroom roster) using Eigenfaces (PCA) embeddings and an SVM classifier.</p>
+
+  <div class="grid">
+    <div class="panel">
+      <div class="panel-title">Capture</div>
+      <div class="capture-stage" id="capture-stage">
+        <div class="capture-placeholder" id="placeholder">No image yet.<br>Use webcam or upload a photo.</div>
+        <div class="scan-frame" id="scan-frame" style="display:none;">
+          <span class="tl"></span><span class="tr"></span><span class="bl"></span><span class="br"></span>
+        </div>
+      </div>
+      <div class="row">
+        <button id="webcam-btn">Start webcam</button>
+        <button class="ghost" id="upload-btn">Upload photo</button>
+        <input type="file" id="file-input" accept="image/*">
+      </div>
+      <div class="row" id="capture-actions" style="display:none;">
+        <button id="snap-btn">Capture frame</button>
+        <button class="ghost" id="reset-btn">Reset</button>
+      </div>
+      <div class="row" id="analyze-row" style="display:none;">
+        <button id="mark-btn">Mark attendance</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">Recognition result</div>
+      <div id="idle-msg" style="color:var(--muted);font-size:13px;">Capture or upload a photo, then click "Mark attendance".</div>
+      <div class="result" id="result">
+        <div class="id-card" id="id-card">
+          <div class="avatar" id="avatar">--</div>
+          <div class="id-info">
+            <div class="id-name" id="id-name">—</div>
+            <div class="id-meta" id="id-meta">—</div>
+          </div>
+          <div class="id-status" id="id-status">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-bottom:20px;">
+    <div class="panel-title">Today's summary</div>
+    <div class="stats-grid" id="summary-stats">
+      <div class="stat"><div class="stat-value" id="stat-total">—</div><div class="stat-label">Enrolled</div></div>
+      <div class="stat"><div class="stat-value green" id="stat-present">—</div><div class="stat-label">Present</div></div>
+      <div class="stat"><div class="stat-value red" id="stat-absent">—</div><div class="stat-label">Absent</div></div>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-bottom:20px;">
+    <div class="panel-title">Model performance (held-out test set)</div>
+    <div class="stats-grid" id="model-stats">
+      <div class="stat"><div class="stat-value" id="m-acc">—</div><div class="stat-label">Accuracy</div></div>
+      <div class="stat"><div class="stat-value" id="m-f1">—</div><div class="stat-label">F1 Score</div></div>
+      <div class="stat"><div class="stat-value" id="m-pipeline" style="font-size:14px;">—</div><div class="stat-label">Pipeline</div></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title">Live attendance log</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Name</th><th class="mono">Student ID</th><th>Time</th><th class="mono">Confidence</th></tr></thead>
+        <tbody id="attendance-body"><tr><td colspan="4" class="empty-row">No attendance marked yet today.</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <footer>
+    API endpoints: <code class="inline">POST /api/recognize</code> · <code class="inline">POST /api/mark-attendance</code> · <code class="inline">GET /api/attendance</code> · <code class="inline">GET /api/attendance/summary</code> · <code class="inline">GET /api/students</code> · <code class="inline">GET /api/model-info</code><br>
+    Dataset: AT&T/Olivetti Faces (40 subjects) · Detection: Haar Cascade · Embedding: Eigenfaces (PCA) / LBPH · Classifiers: SVM, KNN
+  </footer>
+</div>
+
+<script>
+const API_BASE = '';
+let stream = null;
+let capturedCanvas = null;
+
+const captureStage = document.getElementById('capture-stage');
+const placeholder = document.getElementById('placeholder');
+const scanFrame = document.getElementById('scan-frame');
+const webcamBtn = document.getElementById('webcam-btn');
+const uploadBtn = document.getElementById('upload-btn');
+const fileInput = document.getElementById('file-input');
+const captureActions = document.getElementById('capture-actions');
+const analyzeRow = document.getElementById('analyze-row');
+const snapBtn = document.getElementById('snap-btn');
+const resetBtn = document.getElementById('reset-btn');
+const markBtn = document.getElementById('mark-btn');
+
+function clearStage(){
+  captureStage.querySelectorAll('video, img').forEach(el => el.remove());
+  placeholder.style.display = 'block';
+  scanFrame.style.display = 'none';
+  captureActions.style.display = 'none';
+  analyzeRow.style.display = 'none';
+  capturedCanvas = null;
+  if(stream){ stream.getTracks().forEach(t => t.stop()); stream = null; }
+}
+
+webcamBtn.addEventListener('click', async () => {
+  try{
+    stream = await navigator.mediaDevices.getUserMedia({video:true});
+    clearStage();
+    const video = document.createElement('video');
+    video.srcObject = stream; video.autoplay = true; video.playsInline = true;
+    captureStage.appendChild(video);
+    placeholder.style.display = 'none';
+    scanFrame.style.display = 'block';
+    captureActions.style.display = 'flex';
+    window._activeVideo = video;
+  }catch(e){
+    alert('Could not access webcam: ' + e.message + '\nTry "Upload photo" instead.');
+  }
+});
+
+uploadBtn.addEventListener('click', () => fileInput.click());
+fileInput.addEventListener('change', () => {
+  const file = fileInput.files[0];
+  if(!file) return;
+  clearStage();
+  const img = document.createElement('img');
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    img.src = e.target.result;
+    captureStage.appendChild(img);
+    placeholder.style.display = 'none';
+    scanFrame.style.display = 'block';
+    analyzeRow.style.display = 'flex';
+
+    const canvas = document.createElement('canvas');
+    const tmpImg = new Image();
+    tmpImg.onload = () => {
+      canvas.width = tmpImg.width; canvas.height = tmpImg.height;
+      canvas.getContext('2d').drawImage(tmpImg, 0, 0);
+      capturedCanvas = canvas;
+    };
+    tmpImg.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+snapBtn.addEventListener('click', () => {
+  const video = window._activeVideo;
+  if(!video) return;
+  const canvas = document.createElement('canvas');
+  canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+  canvas.getContext('2d').drawImage(video, 0, 0);
+  capturedCanvas = canvas;
+
+  if(stream){ stream.getTracks().forEach(t => t.stop()); stream = null; }
+  captureStage.querySelectorAll('video').forEach(el => el.remove());
+  const img = document.createElement('img');
+  img.src = canvas.toDataURL('image/png');
+  captureStage.appendChild(img);
+  captureActions.style.display = 'none';
+  analyzeRow.style.display = 'flex';
+});
+
+resetBtn.addEventListener('click', clearStage);
+
+async function markAttendance(){
+  if(!capturedCanvas){ alert('Capture or upload a photo first.'); return; }
+  const idleMsg = document.getElementById('idle-msg');
+  const result = document.getElementById('result');
+  markBtn.disabled = true;
+  captureStage.classList.add('scanning');
+  idleMsg.textContent = 'Analyzing...';
+
+  try{
+    const dataUrl = capturedCanvas.toDataURL('image/png');
+    const res = await fetch(API_BASE + '/api/mark-attendance', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({image: dataUrl})
+    });
+    const data = await res.json();
+    if(!res.ok) throw new Error(data.error || 'Recognition failed');
+
+    idleMsg.style.display = 'none';
+    result.classList.add('show');
+
+    const card = document.getElementById('id-card');
+    const avatar = document.getElementById('avatar');
+    const name = document.getElementById('id-name');
+    const meta = document.getElementById('id-meta');
+    const status = document.getElementById('id-status');
+
+    if(!data.face_detected){
+      card.className = 'id-card rejected';
+      avatar.textContent = '?';
+      name.textContent = 'No face detected';
+      meta.textContent = 'Try a clearer, front-facing photo';
+      status.textContent = 'NO FACE';
+    } else if(!data.recognized){
+      card.className = 'id-card rejected';
+      avatar.textContent = '?';
+      name.textContent = 'Not recognized';
+      meta.textContent = `Closest match below confidence threshold`;
+      status.textContent = 'UNVERIFIED';
+    } else {
+      const isMarked = data.attendance && data.attendance.status === 'marked';
+      const already = data.attendance && data.attendance.status === 'already_marked';
+      card.className = 'id-card present';
+      avatar.textContent = data.name.split(' ').map(n=>n[0]).join('').slice(0,2);
+      name.textContent = data.name;
+      meta.textContent = `${data.student_id} · ${data.roll_no} · confidence ${Math.round(data.confidence*100)}%`;
+      status.textContent = isMarked ? 'MARKED' : (already ? 'ALREADY MARKED' : 'RECOGNIZED');
+    }
+
+    loadSummary();
+    loadAttendanceLog();
+  }catch(e){
+    alert('Error: ' + e.message + '\n\nMake sure the Flask API (src/app.py) is running.');
+    idleMsg.style.display = 'block';
+    idleMsg.textContent = 'Capture or upload a photo, then click "Mark attendance".';
+  }finally{
+    markBtn.disabled = false;
+    captureStage.classList.remove('scanning');
+  }
+}
+markBtn.addEventListener('click', markAttendance);
+
+async function checkHealth(){
+  const statusText = document.getElementById('api-status-text');
+  try{
+    const res = await fetch(API_BASE + '/api/health');
+    if(res.ok){ statusText.textContent = 'API online'; }
+    else throw new Error();
+  }catch(e){
+    statusText.textContent = 'API offline';
+    document.querySelector('.dot').style.background = 'var(--red)';
+  }
+}
+
+async function loadSummary(){
+  try{
+    const res = await fetch(API_BASE + '/api/attendance/summary');
+    if(!res.ok) return;
+    const d = await res.json();
+    document.getElementById('stat-total').textContent = d.total_students;
+    document.getElementById('stat-present').textContent = d.present;
+    document.getElementById('stat-absent').textContent = d.absent;
+  }catch(e){}
+}
+
+async function loadModelInfo(){
+  try{
+    const res = await fetch(API_BASE + '/api/model-info');
+    if(!res.ok) return;
+    const d = await res.json();
+    const m = d.metrics || {};
+    document.getElementById('m-acc').textContent = m.accuracy ? (m.accuracy*100).toFixed(1)+'%' : '—';
+    document.getElementById('m-f1').textContent = m.f1_score ? (m.f1_score*100).toFixed(1)+'%' : '—';
+    document.getElementById('m-pipeline').textContent = d.best_pipeline || '—';
+  }catch(e){}
+}
+
+async function loadAttendanceLog(){
+  const tbody = document.getElementById('attendance-body');
+  try{
+    const res = await fetch(API_BASE + '/api/attendance');
+    if(!res.ok) return;
+    const d = await res.json();
+    if(!d.records.length){
+      tbody.innerHTML = '<tr><td colspan="4" class="empty-row">No attendance marked yet today.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = d.records.map(r => `
+      <tr>
+        <td>${r.name}</td>
+        <td class="mono">${r.student_id}</td>
+        <td class="mono">${r.date} ${r.time}</td>
+        <td class="mono">${r.confidence ? Math.round(r.confidence*100)+'%' : '—'}</td>
+      </tr>`).join('');
+  }catch(e){
+    tbody.innerHTML = `<tr><td colspan="4" class="empty-row">Error loading attendance: ${e.message}</td></tr>`;
+  }
+}
+
+checkHealth();
+loadSummary();
+loadModelInfo();
+loadAttendanceLog();
+</script>
+</body>
+</html>
